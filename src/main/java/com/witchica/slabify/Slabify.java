@@ -1,9 +1,11 @@
 package com.witchica.slabify;
 
+import com.witchica.slabify.block.SawingTableBlock;
 import com.witchica.slabify.block.SlabifySlabBlock;
 import com.witchica.slabify.config.SlabifyConfiguration;
 import com.witchica.slabify.item.NoNameBlockItem;
 import com.witchica.slabify.item.SawItem;
+import com.witchica.slabify.menu.SawingTableMenu;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -17,6 +19,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -43,6 +48,8 @@ public class Slabify implements ModInitializer {
 	 */
 	public static List<SlabifySlabBlock> SLABIFY_SLABS;
 	public static Map<ResourceLocation, SlabifySlabBlock> IDS_TO_SLABS;
+	public static Map<Block, SlabifySlabBlock> BLOCKS_TO_SLABS;
+	public static Block SAWING_TABLE = new SawingTableBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE));
 
 	/**
 	 * Items
@@ -50,6 +57,11 @@ public class Slabify implements ModInitializer {
 	public static Item IRON_SAW = new SawItem(new Item.Properties().component(DataComponents.MAX_DAMAGE, 128).component(DataComponents.MAX_STACK_SIZE, 1));
 	public static Item GOLD_SAW = new SawItem(new Item.Properties().component(DataComponents.MAX_DAMAGE, 256).component(DataComponents.MAX_STACK_SIZE, 1));
 	public static Item DIAMOND_SAW = new SawItem(new Item.Properties().component(DataComponents.MAX_DAMAGE, 512).component(DataComponents.MAX_STACK_SIZE, 1));
+
+	/**
+	 * Menu
+	 */
+	public static MenuType<SawingTableMenu> SAWING_MENU_TYPE = new MenuType<>(SawingTableMenu::new, FeatureFlags.DEFAULT_FLAGS);
 
 	public static CreativeModeTab SLABIFY_TAB = FabricItemGroup.builder().icon(() -> new ItemStack(Blocks.BIRCH_SLAB)).title(Component.translatable("itemGroup.slabify.slabs")).build();
 
@@ -101,6 +113,7 @@ public class Slabify implements ModInitializer {
 		CONFIG = new SlabifyConfiguration();
 		SLABIFY_SLABS = new ArrayList<SlabifySlabBlock>();
 		IDS_TO_SLABS = new HashMap<>();
+		BLOCKS_TO_SLABS = new HashMap<>();
 
 		List<ResourceLocation> keys = new ArrayList<>();
 		for(ResourceLocation s : BuiltInRegistries.BLOCK.keySet()) {
@@ -125,6 +138,7 @@ public class Slabify implements ModInitializer {
 					Registry.register(BuiltInRegistries.ITEM,resourceLocation, new NoNameBlockItem(slabBlock, block, new Item.Properties()));
 
 					IDS_TO_SLABS.put(resourceLocation, slabBlock);
+					BLOCKS_TO_SLABS.put(block, slabBlock);
 
 					SLABIFY_SLABS.add(slabBlock);
 				} catch(Exception ex) {
@@ -155,11 +169,16 @@ public class Slabify implements ModInitializer {
 
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(MOD_ID, "generic"), SLABIFY_TAB);
 
+		Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(MOD_ID, "sawing_table"), SAWING_TABLE);
+		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "sawing_table"), new BlockItem(SAWING_TABLE, new Item.Properties()));
+
+		Registry.register(BuiltInRegistries.MENU, new ResourceLocation(MOD_ID, "sawing_menu"), SAWING_MENU_TYPE);
 
 		ItemGroupEvents.modifyEntriesEvent(BuiltInRegistries.CREATIVE_MODE_TAB.getResourceKey(SLABIFY_TAB).get()).register(entries -> {
 			entries.accept(IRON_SAW);
 			entries.accept(GOLD_SAW);
 			entries.accept(DIAMOND_SAW);
+			entries.accept(SAWING_TABLE);
 			SLABIFY_SLABS.forEach(entries::accept);
 		});
 	}

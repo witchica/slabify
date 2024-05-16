@@ -19,7 +19,7 @@ public class SawItem extends Item {
         int maxDamage = itemStack.getMaxDamage();
         int damage = maxDamage - itemStack.getDamageValue();
 
-        list.add(Component.literal("" + damage + " / " + maxDamage).withStyle(ChatFormatting.LIGHT_PURPLE));
+        list.add(Component.translatable("text.slabify.saw_damage", damage, maxDamage).withStyle(ChatFormatting.LIGHT_PURPLE));
 
         super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
     }

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "slabify:block/sawing_table_top",
+    "side": "slabify:block/sawing_table_side",
+    "bottom": "minecraft:block/oak_planks"
+  }
+}

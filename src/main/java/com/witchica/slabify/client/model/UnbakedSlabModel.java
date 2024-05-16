@@ -167,7 +167,7 @@ public class UnbakedSlabModel implements UnbakedModel, BakedModel, FabricBakedMo
 
         for(Direction direction : Direction.values()) {
             if(direction == Direction.DOWN) {
-                emitter.square(direction, 0.0f, 0.0f, 1f, 1f, 0f);
+                emitter.square(direction, 0.0f, 0.0f, 1f, 1f, minHeight);
             } else if(direction == Direction.UP) {
                 emitter.square(direction, 0.0f, 0.0f, 1f, 1f, type == SlabType.BOTTOM ? 0.5f : 0f);
             } else {
