@@ -1,5 +1,7 @@
 package com.witchica.slabify.client.model;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
@@ -40,6 +42,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@Environment(EnvType.CLIENT)
 public class UnbakedSlabModel implements UnbakedModel, BakedModel, FabricBakedModel {
     private final Block parent;
     private final SlabType type;

@@ -28,9 +28,16 @@ public class SlabifyConfiguration {
     public class ConfigData {
         public List<ResourceLocation> blacklistedSlabBlocks = new ArrayList<ResourceLocation>(List.of(
                 new ResourceLocation("minecraft", "crafting_table"),
-                new ResourceLocation("minecraft", "fletching_table")));
+                new ResourceLocation("minecraft", "fletching_table"),
+                new ResourceLocation("minecraft", "dragon_egg"),
+                new ResourceLocation("minecraft", "smithing_table"),
+                new ResourceLocation("minecraft", "cartograpgy_table"),
+                new ResourceLocation("minecraft", "cauldron"),
+                new ResourceLocation("minecraft", "lava_cauldron"),
+                new ResourceLocation("minecraft", "dirt_path")));
 
         public List<ResourceLocation> forcedSlabBlock = new ArrayList<ResourceLocation>();
+        public boolean loadSlabsForModdedBlocks = true;
 
         public ConfigData() {
 
@@ -58,8 +65,6 @@ public class SlabifyConfiguration {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
-        load();
     }
 
     private void load() {
@@ -74,6 +79,7 @@ public class SlabifyConfiguration {
             this.configData = gson.fromJson(json, ConfigData.class);
 
             json.close();
+            save();
         } catch (IOException ex) {
             ex.printStackTrace();
         }

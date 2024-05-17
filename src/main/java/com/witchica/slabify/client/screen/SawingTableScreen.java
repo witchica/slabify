@@ -1,6 +1,8 @@
 package com.witchica.slabify.client.screen;
 
 import com.witchica.slabify.menu.SawingTableMenu;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
@@ -8,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
+@Environment(EnvType.CLIENT)
 public class SawingTableScreen extends AbstractContainerScreen<SawingTableMenu> {
     private static final ResourceLocation CRAFTING_TABLE_LOCATION = new ResourceLocation("slabify", "textures/gui/sawing_menu.png");
     public SawingTableScreen(SawingTableMenu abstractContainerMenu, Inventory inventory, Component component) {

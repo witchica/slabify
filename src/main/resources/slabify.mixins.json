@@ -2,10 +2,15 @@
 	"required": true,
 	"package": "com.witchica.slabify.mixin",
 	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"ExampleMixin"
+	"client": [
+		"MinecraftClientMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
-	}
+	},
+	"mixins": [
+	],
+	"server": [
+		"MainMixin"
+	]
 }

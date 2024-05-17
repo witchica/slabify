@@ -113,7 +113,7 @@ public class SawingTableMenu extends AbstractContainerMenu {
 
             if(saw.getDamageValue() >= saw.getMaxDamage()) {
                 craftingSlots.setItem(1, ItemStack.EMPTY);
-                player.playNotifySound(SoundEvents.ITEM_BREAK, SoundSource.BLOCKS, 1f, 1f);
+                player.playNotifySound(SoundEvents.ITEM_BREAK, SoundSource.BLOCKS, 1f, 1f   );
             }
         }
     }

@@ -2,6 +2,8 @@ package com.witchica.slabify.client.model;
 
 import com.witchica.slabify.Slabify;
 import com.witchica.slabify.block.SlabifySlabBlock;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.SlabType;
@@ -9,6 +11,7 @@ import net.minecraft.world.level.block.state.properties.SlabType;
 import java.util.HashMap;
 import java.util.Map;
 
+@Environment(EnvType.CLIENT)
 public class SlabifyModelLoader implements ModelLoadingPlugin {
     @Override
     public void onInitializeModelLoader(Context pluginContext) {

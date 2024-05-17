@@ -2,6 +2,8 @@ package com.witchica.slabify.client.model;
 
 import com.witchica.slabify.block.SlabifySlabBlock;
 import com.witchica.slabify.client.model.UnbakedSlabModel;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.loading.v1.BlockStateResolver;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -9,6 +11,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
+@Environment(EnvType.CLIENT)
 public class SlabifyBlockStateResolvers {
     public static class Slab implements BlockStateResolver {
         private final SlabifySlabBlock block;

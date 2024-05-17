@@ -65,6 +65,11 @@ public class Slabify implements ModInitializer {
 
 	public static CreativeModeTab SLABIFY_TAB = FabricItemGroup.builder().icon(() -> new ItemStack(Blocks.BIRCH_SLAB)).title(Component.translatable("itemGroup.slabify.slabs")).build();
 
+	public static Slabify INSTANCE;
+
+	public Slabify() {
+		INSTANCE = this;
+	}
 
 	public boolean isBlockValid(ResourceLocation name, Block block) {
 		int maxProperties = block.defaultBlockState().getProperties().contains(BlockStateProperties.WATERLOGGED) ? 1 : 0;
@@ -89,7 +94,7 @@ public class Slabify implements ModInitializer {
 				block instanceof HangingRootsBlock ||
 				block instanceof SporeBlossomBlock ||
 				block instanceof CarpetBlock ||
-				CONFIG.configData.blacklistedSlabBlocks.contains(name) ||
+				isBlockBlacklisted(name) ||
 				block.defaultBlockState().getProperties().size() > maxProperties);
 
 		if(isBlockForced(name)) {
@@ -103,25 +108,28 @@ public class Slabify implements ModInitializer {
 		return !flag;
 	}
 
+	public boolean isBlockBlacklisted(ResourceLocation name) {
+		return CONFIG.configData.blacklistedSlabBlocks.contains(name) || CONFIG.configData.blacklistedSlabBlocks.contains(new ResourceLocation(name.getNamespace(), ""));
+	}
+
 	public boolean isBlockForced(ResourceLocation name) {
 		return CONFIG.configData.forcedSlabBlock.contains(name);
 	}
-	@Override
-	public void onInitialize() {
-		LOGGER.info("Hello Fabric world! It's Slabify time!");
 
-		CONFIG = new SlabifyConfiguration();
-		SLABIFY_SLABS = new ArrayList<SlabifySlabBlock>();
-		IDS_TO_SLABS = new HashMap<>();
-		BLOCKS_TO_SLABS = new HashMap<>();
-
+	public void onPostInitialize() {
 		List<ResourceLocation> keys = new ArrayList<>();
 		for(ResourceLocation s : BuiltInRegistries.BLOCK.keySet()) {
 			keys.add(s);
 		}
 
+		List<ResourceLocation> registered = new ArrayList<>();
+
 		for(ResourceLocation s : keys) {
 			Block block = BuiltInRegistries.BLOCK.get(s);
+
+			if(!CONFIG.configData.loadSlabsForModdedBlocks && !s.getNamespace().equals("minecraft")) {
+				continue;
+			}
 
 			if(isBlockValid(s, block)) {
 				if(FabricLoader.getInstance().isDevelopmentEnvironment()) {
@@ -133,7 +141,14 @@ public class Slabify implements ModInitializer {
 				try {
 					SlabifySlabBlock slabBlock = new SlabifySlabBlock(block);
 
-					ResourceLocation resourceLocation = new ResourceLocation(MOD_ID, s.getPath() + "_slab");
+					ResourceLocation resourceLocation = new ResourceLocation(MOD_ID, s.getNamespace() + "_" + s.getPath() + "_slab");
+
+//					if(registered.contains(resourceLocation)) {
+//						resourceLocation = new ResourceLocation(MOD_ID, s.getNamespace() + "_" + s.getPath() + "_slab");
+//					}
+
+					registered.add(resourceLocation);
+
 					Registry.register(BuiltInRegistries.BLOCK, resourceLocation, slabBlock);
 					Registry.register(BuiltInRegistries.ITEM,resourceLocation, new NoNameBlockItem(slabBlock, block, new Item.Properties()));
 
@@ -162,6 +177,16 @@ public class Slabify implements ModInitializer {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void onInitialize() {
+		LOGGER.info("Hello Fabric world! It's Slabify time!");
+
+		CONFIG = new SlabifyConfiguration();
+		SLABIFY_SLABS = new ArrayList<SlabifySlabBlock>();
+		IDS_TO_SLABS = new HashMap<>();
+		BLOCKS_TO_SLABS = new HashMap<>();
 
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "iron_saw"), IRON_SAW);
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "gold_saw"), GOLD_SAW);
