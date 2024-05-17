@@ -31,7 +31,7 @@ public class SlabifyConfiguration {
                 new ResourceLocation("minecraft", "fletching_table"),
                 new ResourceLocation("minecraft", "dragon_egg"),
                 new ResourceLocation("minecraft", "smithing_table"),
-                new ResourceLocation("minecraft", "cartograpgy_table"),
+                new ResourceLocation("minecraft", "cartography_table"),
                 new ResourceLocation("minecraft", "cauldron"),
                 new ResourceLocation("minecraft", "lava_cauldron"),
                 new ResourceLocation("minecraft", "dirt_path")));
