@@ -2,10 +2,12 @@ package com.witchica.slabify.client.model;
 
 import com.witchica.slabify.Slabify;
 import com.witchica.slabify.block.SlabifySlabBlock;
+import com.witchica.slabify.block.base.BaseSlabifyBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 import java.util.HashMap;
@@ -15,14 +17,14 @@ import java.util.Map;
 public class SlabifyModelLoader implements ModelLoadingPlugin {
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
-        for(SlabifySlabBlock slabBlock : Slabify.SLABIFY_SLABS) {
-            pluginContext.registerBlockStateResolver(slabBlock, new SlabifyBlockStateResolvers.Slab(slabBlock));
+        for(BaseSlabifyBlock slabBlock : Slabify.SLABIFY_SLABS) {
+            pluginContext.registerBlockStateResolver(slabBlock.getSelf(), new SlabifyBlockStateResolvers.Slab(slabBlock));
         }
 
-        Map<ResourceLocation, SlabifySlabBlock> MODELS_TO_SLABS = new HashMap<>();
+        Map<ResourceLocation, Block> MODELS_TO_SLABS = new HashMap<>();
 
         for(ResourceLocation resourceLocation : Slabify.IDS_TO_SLABS.keySet()) {
-            MODELS_TO_SLABS.put(new ResourceLocation(resourceLocation.getNamespace(), "item/" + resourceLocation.getPath()) , Slabify.IDS_TO_SLABS.get(resourceLocation));
+            MODELS_TO_SLABS.put(new ResourceLocation(resourceLocation.getNamespace(), "item/" + resourceLocation.getPath()) , Slabify.IDS_TO_SLABS.get(resourceLocation).getSelf());
         }
 
         pluginContext.resolveModel().register(context -> {

@@ -2,6 +2,8 @@ package com.witchica.slabify;
 
 import com.witchica.slabify.block.SawingTableBlock;
 import com.witchica.slabify.block.SlabifySlabBlock;
+import com.witchica.slabify.block.SlabifyWallBlock;
+import com.witchica.slabify.block.base.BaseSlabifyBlock;
 import com.witchica.slabify.config.SlabifyConfiguration;
 import com.witchica.slabify.item.NoNameBlockItem;
 import com.witchica.slabify.item.SawItem;
@@ -46,9 +48,14 @@ public class Slabify implements ModInitializer {
 	/**
 	 * Blocks
 	 */
-	public static List<SlabifySlabBlock> SLABIFY_SLABS;
-	public static Map<ResourceLocation, SlabifySlabBlock> IDS_TO_SLABS;
-	public static Map<Block, SlabifySlabBlock> BLOCKS_TO_SLABS;
+	public static List<BaseSlabifyBlock> SLABIFY_SLABS;
+	public static Map<ResourceLocation, BaseSlabifyBlock> IDS_TO_SLABS;
+	public static Map<Block, BaseSlabifyBlock> BLOCKS_TO_SLABS;
+
+	public static List<BaseSlabifyBlock> SLABIFY_WALLS;
+	public static Map<ResourceLocation, BaseSlabifyBlock> IDS_TO_WALLS;
+	public static Map<Block, BaseSlabifyBlock> BLOCKS_TO_WALLS;
+
 	public static Block SAWING_TABLE = new SawingTableBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE));
 
 	/**
@@ -71,7 +78,12 @@ public class Slabify implements ModInitializer {
 		INSTANCE = this;
 	}
 
-	public boolean isBlockValid(ResourceLocation name, Block block) {
+	public enum BlockType {
+		SLAB,
+		WALL;
+	}
+
+	public boolean isBlockValid(ResourceLocation name, Block block, BlockType type) {
 		int maxProperties = block.defaultBlockState().getProperties().contains(BlockStateProperties.WATERLOGGED) ? 1 : 0;
 
 		boolean flag = (block instanceof EntityBlock ||
@@ -94,12 +106,12 @@ public class Slabify implements ModInitializer {
 				block instanceof HangingRootsBlock ||
 				block instanceof SporeBlossomBlock ||
 				block instanceof CarpetBlock ||
-				isBlockBlacklisted(name) ||
+				isBlockBlacklisted(name, type) ||
 				block.defaultBlockState().getProperties().size() > maxProperties);
 
-		if(isBlockForced(name)) {
+		if(isBlockForced(name, type)) {
 			if(flag) {
-				LOGGER.error("Registering " + name + " as a forced slab will likely cause issues with the game, proceed with caution. If the game crashes, please remove this entry and try again.");
+				LOGGER.error("Registering " + name + " as a forced " + type.name().toLowerCase() + " will likely cause issues with the game, proceed with caution. If the game crashes, please remove this entry and try again.");
 			}
 
 			return true;
@@ -108,12 +120,32 @@ public class Slabify implements ModInitializer {
 		return !flag;
 	}
 
-	public boolean isBlockBlacklisted(ResourceLocation name) {
-		return CONFIG.configData.blacklistedSlabBlocks.contains(name) || CONFIG.configData.blacklistedSlabBlocks.contains(new ResourceLocation(name.getNamespace(), ""));
+	public boolean isBlockBlacklisted(ResourceLocation name, BlockType type) {
+		if(type == BlockType.SLAB) {
+			return CONFIG.configData.blacklistedSlabBlocks.contains(name) || CONFIG.configData.blacklistedSlabBlocks.contains(new ResourceLocation(name.getNamespace(), ""));
+		} else if(type == BlockType.WALL) {
+			return CONFIG.configData.blacklistedWallBlocks.contains(name) || CONFIG.configData.blacklistedWallBlocks.contains(new ResourceLocation(name.getNamespace(), ""));
+		}
+
+		return false;
 	}
 
-	public boolean isBlockForced(ResourceLocation name) {
-		return CONFIG.configData.forcedSlabBlock.contains(name);
+	public boolean isBlockForced(ResourceLocation name, BlockType type) {
+		if(type == BlockType.SLAB) {
+			return CONFIG.configData.forcedSlabBlock.contains(name);
+		} else if(type == BlockType.WALL) {
+			return CONFIG.configData.forcedWallBlocks.contains(name);
+		}
+
+		return false;
+	}
+
+	public boolean loadType(BlockType type) {
+		return type == BlockType.SLAB ? CONFIG.configData.loadSlabsForModdedBlocks : CONFIG.configData.loadWallsForModdedBlocks;
+	}
+	
+	public Block createBlockOfType(BlockType type, Block parent) {
+		return type == BlockType.SLAB ? new SlabifySlabBlock(parent) : new SlabifyWallBlock(parent);
 	}
 
 	public void onPostInitialize() {
@@ -122,58 +154,54 @@ public class Slabify implements ModInitializer {
 			keys.add(s);
 		}
 
-		List<ResourceLocation> registered = new ArrayList<>();
+		for(BlockType blockType : BlockType.values()) {
+			for(ResourceLocation s : keys) {
+				Block baseBlock = BuiltInRegistries.BLOCK.get(s);
 
-		for(ResourceLocation s : keys) {
-			Block block = BuiltInRegistries.BLOCK.get(s);
-
-			if(!CONFIG.configData.loadSlabsForModdedBlocks && !s.getNamespace().equals("minecraft")) {
-				continue;
-			}
-
-			if(isBlockValid(s, block)) {
-				if(FabricLoader.getInstance().isDevelopmentEnvironment()) {
-					System.out.println("Attempting to register " + s.getPath());
+				if(!loadType(blockType) && !s.getNamespace().equals("minecraft")) {
+					continue;
 				}
 
-				// Wrap with a try/catch so we can update config to block misbehaving blocks
-
-				try {
-					SlabifySlabBlock slabBlock = new SlabifySlabBlock(block);
-
-					ResourceLocation resourceLocation = new ResourceLocation(MOD_ID, s.getNamespace() + "_" + s.getPath() + "_slab");
-
-//					if(registered.contains(resourceLocation)) {
-//						resourceLocation = new ResourceLocation(MOD_ID, s.getNamespace() + "_" + s.getPath() + "_slab");
-//					}
-
-					registered.add(resourceLocation);
-
-					Registry.register(BuiltInRegistries.BLOCK, resourceLocation, slabBlock);
-					Registry.register(BuiltInRegistries.ITEM,resourceLocation, new NoNameBlockItem(slabBlock, block, new Item.Properties()));
-
-					IDS_TO_SLABS.put(resourceLocation, slabBlock);
-					BLOCKS_TO_SLABS.put(block, slabBlock);
-
-					SLABIFY_SLABS.add(slabBlock);
-				} catch(Exception ex) {
-					if (isBlockForced(s)) {
-						LOGGER.error("Error registering block " + s + ", this block was added to the 'forcedSlabBlocks' configuration section, this will be removed.");
-					} else {
-						LOGGER.error("Error registering block " + s + " please report this issue on GitHub! The block has been added to the 'blacklistedSlabBlocks' section of the configuration file, next run should not crash now.");
+				if(isBlockValid(s, baseBlock, blockType)) {
+					if(FabricLoader.getInstance().isDevelopmentEnvironment()) {
+						System.out.println("Attempting to register " + s.getPath() + " as " + blockType.name().toLowerCase());
 					}
 
-					ex.printStackTrace();
+					try {
+						Block createdBlock = createBlockOfType(blockType, baseBlock);
+						ResourceLocation resourceLocation = new ResourceLocation(MOD_ID, s.getNamespace() + "_" + s.getPath() + "_" + blockType.name().toLowerCase());
 
-					if(CONFIG.configData.blacklistedSlabBlocks.contains(s)) {
-						CONFIG.configData.forcedSlabBlock.remove(s);
+						Registry.register(BuiltInRegistries.BLOCK, resourceLocation, createdBlock);
+						Registry.register(BuiltInRegistries.ITEM,resourceLocation, new NoNameBlockItem(createdBlock, baseBlock, new Item.Properties()));
+
+						if(blockType == BlockType.SLAB) {
+							IDS_TO_SLABS.put(resourceLocation, (BaseSlabifyBlock) createdBlock);
+							BLOCKS_TO_SLABS.put(baseBlock, (BaseSlabifyBlock) createdBlock);
+							SLABIFY_SLABS.add((BaseSlabifyBlock) createdBlock);
+						} else if(blockType == BlockType.WALL) {
+							IDS_TO_WALLS.put(resourceLocation, (BaseSlabifyBlock) createdBlock);
+							BLOCKS_TO_WALLS.put(baseBlock, (BaseSlabifyBlock) createdBlock);
+							SLABIFY_WALLS.add((BaseSlabifyBlock) createdBlock);
+						}
+					} catch(Exception ex) {
+						if (isBlockForced(s, BlockType.SLAB)) {
+							LOGGER.error("Error registering block " + s + ", this block was added to the 'forcedSlabBlocks' configuration section, this will be removed.");
+						} else {
+							LOGGER.error("Error registering block " + s + " please report this issue on GitHub! The block has been added to the 'blacklistedSlabBlocks' section of the configuration file, next run should not crash now.");
+						}
+
+						ex.printStackTrace();
+
+						if(CONFIG.configData.blacklistedSlabBlocks.contains(s)) {
+							CONFIG.configData.forcedSlabBlock.remove(s);
+						}
+
+						if(!CONFIG.configData.blacklistedSlabBlocks.contains(s)) {
+							CONFIG.configData.blacklistedSlabBlocks.add(s);
+						}
+
+						CONFIG.save();
 					}
-
-					if(!CONFIG.configData.blacklistedSlabBlocks.contains(s)) {
-						CONFIG.configData.blacklistedSlabBlocks.add(s);
-					}
-
-					CONFIG.save();
 				}
 			}
 		}
@@ -184,9 +212,13 @@ public class Slabify implements ModInitializer {
 		LOGGER.info("Hello Fabric world! It's Slabify time!");
 
 		CONFIG = new SlabifyConfiguration();
-		SLABIFY_SLABS = new ArrayList<SlabifySlabBlock>();
+		SLABIFY_SLABS = new ArrayList<BaseSlabifyBlock>();
 		IDS_TO_SLABS = new HashMap<>();
 		BLOCKS_TO_SLABS = new HashMap<>();
+
+		SLABIFY_WALLS = new ArrayList<BaseSlabifyBlock>();
+		IDS_TO_WALLS = new HashMap<>();
+		BLOCKS_TO_WALLS = new HashMap<>();
 
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "iron_saw"), IRON_SAW);
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "gold_saw"), GOLD_SAW);
@@ -204,7 +236,7 @@ public class Slabify implements ModInitializer {
 			entries.accept(GOLD_SAW);
 			entries.accept(DIAMOND_SAW);
 			entries.accept(SAWING_TABLE);
-			SLABIFY_SLABS.forEach(entries::accept);
+			SLABIFY_SLABS.forEach(slab -> entries.accept(slab.getSelf()));
 		});
 	}
 }

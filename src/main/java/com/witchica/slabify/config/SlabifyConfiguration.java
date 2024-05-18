@@ -3,6 +3,7 @@ package com.witchica.slabify.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.witchica.slabify.Slabify;
@@ -37,7 +38,24 @@ public class SlabifyConfiguration {
                 new ResourceLocation("minecraft", "dirt_path")));
 
         public List<ResourceLocation> forcedSlabBlock = new ArrayList<ResourceLocation>();
+
+        public List<ResourceLocation> blacklistedWallBlocks = new ArrayList<ResourceLocation>(List.of(
+                new ResourceLocation("minecraft", "crafting_table"),
+                new ResourceLocation("minecraft", "fletching_table"),
+                new ResourceLocation("minecraft", "dragon_egg"),
+                new ResourceLocation("minecraft", "smithing_table"),
+                new ResourceLocation("minecraft", "cartography_table"),
+                new ResourceLocation("minecraft", "cauldron"),
+                new ResourceLocation("minecraft", "lava_cauldron"),
+                new ResourceLocation("minecraft", "dirt_path")));
+
+        public List<ResourceLocation> forcedWallBlocks = new ArrayList<ResourceLocation>();
+
+        public boolean loadWallsForModdedBlocks = true;
         public boolean loadSlabsForModdedBlocks = true;
+
+        @SerializedName("internal_config_version")
+        public int version = 1;
 
         public ConfigData() {
 
@@ -77,6 +95,16 @@ public class SlabifyConfiguration {
             JsonReader json = new JsonReader(reader);
 
             this.configData = gson.fromJson(json, ConfigData.class);
+
+            if(this.configData.version == 0) {
+                ConfigData defaults = new ConfigData();
+
+                this.configData.blacklistedWallBlocks = defaults.blacklistedWallBlocks;
+                this.configData.forcedWallBlocks = defaults.forcedWallBlocks;
+                this.configData.loadWallsForModdedBlocks = defaults.loadWallsForModdedBlocks;
+                this.configData.version = 1;
+                save();
+            }
 
             json.close();
             save();

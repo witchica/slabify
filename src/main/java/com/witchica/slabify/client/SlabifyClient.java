@@ -3,6 +3,7 @@ package com.witchica.slabify.client;
 import com.mojang.authlib.minecraft.client.MinecraftClient;
 import com.witchica.slabify.Slabify;
 import com.witchica.slabify.block.SlabifySlabBlock;
+import com.witchica.slabify.block.base.BaseSlabifyBlock;
 import com.witchica.slabify.client.model.SlabifyModelLoader;
 import com.witchica.slabify.client.screen.SawingTableScreen;
 import com.witchica.slabify.menu.SawingTableMenu;
@@ -28,8 +29,8 @@ public class SlabifyClient implements ClientModInitializer {
     public void onClientPostInitialize() {
         ModelLoadingPlugin.register(new SlabifyModelLoader());
 
-        for(SlabifySlabBlock slabs : Slabify.SLABIFY_SLABS) {
-            BlockRenderLayerMap.INSTANCE.putBlock(slabs, ItemBlockRenderTypes.getChunkRenderType(slabs.owner.defaultBlockState()));
+        for(BaseSlabifyBlock slabs : Slabify.SLABIFY_SLABS) {
+            BlockRenderLayerMap.INSTANCE.putBlock(slabs.getSelf(), ItemBlockRenderTypes.getChunkRenderType(slabs.getParent().defaultBlockState()));
         }
     }
 

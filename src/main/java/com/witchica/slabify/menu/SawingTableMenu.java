@@ -2,6 +2,7 @@ package com.witchica.slabify.menu;
 
 import com.witchica.slabify.Slabify;
 import com.witchica.slabify.block.SlabifySlabBlock;
+import com.witchica.slabify.block.base.BaseSlabifyBlock;
 import com.witchica.slabify.item.SawItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
@@ -138,9 +139,9 @@ public class SawingTableMenu extends AbstractContainerMenu {
                 BlockItem blockItem = (BlockItem) potentialBlock.getItem();
 
                 if(Slabify.BLOCKS_TO_SLABS.containsKey(blockItem.getBlock())) {
-                    SlabifySlabBlock block = Slabify.BLOCKS_TO_SLABS.get(blockItem.getBlock());
+                    BaseSlabifyBlock block = Slabify.BLOCKS_TO_SLABS.get(blockItem.getBlock());
                     int amount = 2;
-                    potentialResults.setItem(0, new ItemStack(block, amount));
+                    potentialResults.setItem(0, new ItemStack(block.getSelf(), amount));
                 }
             });
         }
