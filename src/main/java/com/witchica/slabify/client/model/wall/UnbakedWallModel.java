@@ -23,7 +23,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.block.state.properties.WallSide;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -36,6 +35,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class UnbakedWallModel implements UnbakedModel, BakedModel, FabricBakedModel {
+    private static BakedModel wallCenterCached;
+    private static BakedModel wallPartLowCached;
+    private static BakedModel wallPartHighCached;
     private final Block parent;
     private final boolean up;
     private final WallSide north;
@@ -143,6 +145,12 @@ public class UnbakedWallModel implements UnbakedModel, BakedModel, FabricBakedMo
         return textures;
     }
 
+    private void checkCached(ModelBaker modelBaker, Function<Material, TextureAtlasSprite> function, ModelState modelState, ResourceLocation resourceLocation) {
+        if(wallCenterCached == null) {
+            wallCenterCached =
+        }
+    }
+
     @Nullable
     @Override
     public BakedModel bake(ModelBaker modelBaker, Function<Material, TextureAtlasSprite> function, ModelState modelState, ResourceLocation resourceLocation) {
@@ -151,6 +159,9 @@ public class UnbakedWallModel implements UnbakedModel, BakedModel, FabricBakedMo
 
         Map<Direction, TextureAtlasSprite> textureAtlasSpriteMap = getTextureMapFromBlock(parent, bakedModel);
         this.particleSprite = bakedModel.getParticleIcon();
+
+        checkCached(modelBaker, function, modelState, resourceLocation);
+
 
         Renderer renderer = RendererAccess.INSTANCE.getRenderer();
         MeshBuilder meshBuilder = renderer.meshBuilder();
