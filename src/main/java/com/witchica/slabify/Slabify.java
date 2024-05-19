@@ -10,6 +10,7 @@ import com.witchica.slabify.item.SawItem;
 import com.witchica.slabify.menu.SawingTableMenu;
 import com.witchica.slabify.types.BlockTypeBase;
 import com.witchica.slabify.types.SlabBlockType;
+import com.witchica.slabify.types.SliceBlockType;
 import com.witchica.slabify.types.WallBlockType;
 import net.fabricmc.api.ModInitializer;
 
@@ -77,8 +78,9 @@ public class Slabify implements ModInitializer {
 
 	public static BlockTypeBase SLAB_TYPE = new SlabBlockType();
 	public static BlockTypeBase WALL_TYPE = new WallBlockType();
+	public static BlockTypeBase SLICE_TYPE = new SliceBlockType();
 
-	public static BlockTypeBase[] BLOCK_TYPES = new BlockTypeBase[] {SLAB_TYPE,  WALL_TYPE};
+	public static BlockTypeBase[] BLOCK_TYPES = new BlockTypeBase[] {SLAB_TYPE,  WALL_TYPE, SLICE_TYPE};
 
 
 	public void onPostInitialize() {

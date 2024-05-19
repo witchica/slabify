@@ -1,8 +1,7 @@
-package com.witchica.slabify.client.model.wall;
+package com.witchica.slabify.client.model.slice;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Transformation;
-import com.witchica.slabify.client.model.SlabifyModelState;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
@@ -26,38 +25,28 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.WallSide;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class UnbakedWallModel implements UnbakedModel, BakedModel, FabricBakedModel {
+@Environment(EnvType.CLIENT)
+public class UnbakedSliceModel implements UnbakedModel, BakedModel, FabricBakedModel {
     private final Block parent;
-    private final boolean up;
-    private final WallSide north;
-    private final WallSide east;
-    private final WallSide south;
-    private final WallSide west;
 
-    private UnbakedModel wallPostUnbakedCache;
-    private UnbakedModel wallSideCache;
-    private UnbakedModel wallSideTallCache;
+    private final int height;
+    private Mesh mesh;
 
     private TextureAtlasSprite particleSprite;
 
-    private List<BakedModel> parts = new ArrayList<>();
-
-    public UnbakedWallModel(boolean up, WallSide north, WallSide east, WallSide south, WallSide west, Block parent) {
+    public UnbakedSliceModel(int height, Block parent) {
         this.parent = parent;
-        this.up = up;
-        this.north = north;
-        this.east = east;
-        this.south = south;
-        this.west = west;
+        this.height = height;
     }
 
     @Override
@@ -72,14 +61,12 @@ public class UnbakedWallModel implements UnbakedModel, BakedModel, FabricBakedMo
 
     @Override
     public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        parts.forEach(part -> {
-            part.emitBlockQuads(blockView, state, pos, randomSupplier, context);
-        });
+        mesh.outputTo(context.getEmitter());
     }
 
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        parts.forEach(part -> part.emitItemQuads(stack, randomSupplier, context));
+        mesh.outputTo(context.getEmitter());
     }
 
     @Override
@@ -124,9 +111,7 @@ public class UnbakedWallModel implements UnbakedModel, BakedModel, FabricBakedMo
 
     @Override
     public void resolveParents(Function<ResourceLocation, UnbakedModel> function) {
-        this.wallPostUnbakedCache = function.apply(new ResourceLocation("minecraft", "block/template_wall_post"));
-        this.wallSideCache = function.apply(new ResourceLocation("minecraft", "block/template_wall_side"));
-        this.wallSideTallCache = function.apply(new ResourceLocation("minecraft", "block/template_wall_side_tall"));
+
     }
 
 
@@ -155,31 +140,36 @@ public class UnbakedWallModel implements UnbakedModel, BakedModel, FabricBakedMo
     @Nullable
     @Override
     public BakedModel bake(ModelBaker modelBaker, Function<Material, TextureAtlasSprite> function, ModelState modelState, ResourceLocation resourceLocation) {
+
         UnbakedModel model = modelBaker.getModel(BlockModelShaper.stateToModelLocation(parent.defaultBlockState()));
         BakedModel bakedModel = model.bake(modelBaker, function, modelState, resourceLocation);
-
+        
         Map<Direction, TextureAtlasSprite> textureAtlasSpriteMap = getTextureMapFromBlock(parent, bakedModel);
         this.particleSprite = bakedModel.getParticleIcon();
 
-        if(this.up) {
-            parts.add(wallPostUnbakedCache.bake(modelBaker, material -> {
-                return this.particleSprite;
-            }, modelState, resourceLocation));
-        }
+        Renderer renderer = RendererAccess.INSTANCE.getRenderer();
+        MeshBuilder meshBuilder = renderer.meshBuilder();
+        QuadEmitter emitter = meshBuilder.getEmitter();
 
-        WallSide[] wallSides = new WallSide[] {north, east, south, west};
-        float[] rotations = new float[] {0, 270, 180, 90};
+        generateMesh(emitter, textureAtlasSpriteMap);
 
-        for(int i = 0; i < 4; i++) {
-            if(wallSides[i] != WallSide.NONE) {
-                int finalI = i;
-                parts.add((wallSides[i] == WallSide.LOW ? wallSideCache : wallSideTallCache).bake(modelBaker, material -> {
-                    return this.particleSprite;
-                }, new SlabifyModelState(modelState.getRotation(), rotations[i], modelState.isUvLocked()), resourceLocation));
-            }
-        }
-
+        mesh = meshBuilder.build();
 
         return this;
+    }
+
+    private void generateMesh(QuadEmitter emitter, Map<Direction, TextureAtlasSprite> textureAtlasSpriteMap) {
+        for(Direction direction : Direction.values()) {
+            if(direction == Direction.DOWN) {
+                emitter.square(direction, 0.0f, 0.0f, 1f, 1f, 0f);
+            } else if(direction == Direction.UP) {
+                emitter.square(direction, 0.0f, 0.0f, 1f, 1f, 1f - (height * (1f / 16f)));
+            } else {
+                emitter.square(direction, 0.0f, 0f, 1f, height * (1f / 16f), 0f);
+            }
+            emitter.spriteBake(textureAtlasSpriteMap.get(direction), MutableQuadView.BAKE_LOCK_UV);
+            emitter.color(-1,-1,-1,-1);
+            emitter.emit();
+        }
     }
 }

@@ -63,4 +63,9 @@ public class WallBlockType extends BlockTypeBase {
     public Block create(Block parent, ResourceLocation resourceLocation) {
         return new SlabifyWallBlock(parent, resourceLocation);
     }
+
+    @Override
+    public int getCraftedAmount() {
+        return 2;
+    }
 }

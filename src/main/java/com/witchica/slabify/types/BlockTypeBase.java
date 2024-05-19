@@ -136,6 +136,7 @@ public abstract class BlockTypeBase {
     public abstract boolean isBlockBlacklisted(ResourceLocation resourceLocation);
     public abstract boolean isBlockForced(ResourceLocation resourceLocation);
     public abstract boolean shouldLoadModdedEntries();
+    public abstract int getCraftedAmount();
 
     public abstract Block create(Block parent, ResourceLocation resourceLocation);
 }

@@ -1,7 +1,9 @@
 package com.witchica.slabify.client.model;
 
+import com.witchica.slabify.block.SlabifySliceBlock;
 import com.witchica.slabify.block.base.BaseSlabifyBlock;
 import com.witchica.slabify.client.model.slab.UnbakedSlabModel;
+import com.witchica.slabify.client.model.slice.UnbakedSliceModel;
 import com.witchica.slabify.client.model.wall.UnbakedWallModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -31,6 +33,23 @@ public class SlabifyBlockStateResolvers {
 
             for(BlockState state : states) {
                 UnbakedSlabModel model = new UnbakedSlabModel(state.getValue(SlabBlock.TYPE), block.getParent());
+                context.setModel(state, model);
+            }
+        }
+    }
+    public static class Slice implements BlockStateResolver {
+        private final BaseSlabifyBlock block;
+
+        public Slice(BaseSlabifyBlock block) {
+            this.block = block;
+        }
+
+        @Override
+        public void resolveBlockStates(Context context) {
+            List<BlockState> states = block.getSelf().getStateDefinition().getPossibleStates();
+
+            for(BlockState state : states) {
+                UnbakedSliceModel model = new UnbakedSliceModel(state.getValue(SlabifySliceBlock.HEIGHT), block.getParent());
                 context.setModel(state, model);
             }
         }

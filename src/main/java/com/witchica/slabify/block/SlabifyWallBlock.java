@@ -26,7 +26,7 @@ public class SlabifyWallBlock extends WallBlock implements BaseSlabifyBlock {
     private final ResourceLocation registeredName;
 
     public SlabifyWallBlock(Block owner, ResourceLocation registeredName) {
-        super(BlockBehaviour.Properties.ofLegacyCopy(owner).forceSolidOn());
+        super(BaseSlabifyBlock.copy(owner).forceSolidOn());
         this.owner = owner;
         this.registeredName = registeredName;
     }

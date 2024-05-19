@@ -51,11 +51,24 @@ public class SlabifyConfiguration {
 
         public List<ResourceLocation> forcedWallBlocks = new ArrayList<ResourceLocation>();
 
+        public List<ResourceLocation> blacklistedSliceBlocks = new ArrayList<ResourceLocation>(List.of(
+                new ResourceLocation("minecraft", "crafting_table"),
+                new ResourceLocation("minecraft", "fletching_table"),
+                new ResourceLocation("minecraft", "dragon_egg"),
+                new ResourceLocation("minecraft", "smithing_table"),
+                new ResourceLocation("minecraft", "cartography_table"),
+                new ResourceLocation("minecraft", "cauldron"),
+                new ResourceLocation("minecraft", "lava_cauldron"),
+                new ResourceLocation("minecraft", "dirt_path")));
+
+        public List<ResourceLocation> forcedSliceBlocks = new ArrayList<ResourceLocation>();
+
         public boolean loadWallsForModdedBlocks = true;
         public boolean loadSlabsForModdedBlocks = true;
+        public boolean loadSlicesForModdedBlocks = true;
 
         @SerializedName("internal_config_version")
-        public int version = 1;
+        public int version = 2;
 
         public ConfigData() {
 
@@ -103,6 +116,15 @@ public class SlabifyConfiguration {
                 this.configData.forcedWallBlocks = defaults.forcedWallBlocks;
                 this.configData.loadWallsForModdedBlocks = defaults.loadWallsForModdedBlocks;
                 this.configData.version = 1;
+                save();
+            }
+            if(this.configData.version == 1) {
+                ConfigData defaults = new ConfigData();
+
+                this.configData.blacklistedSliceBlocks = defaults.blacklistedSliceBlocks;
+                this.configData.forcedSliceBlocks = defaults.forcedSliceBlocks;
+                this.configData.loadSlicesForModdedBlocks = defaults.loadSlicesForModdedBlocks;
+                this.configData.version = 2;
                 save();
             }
 

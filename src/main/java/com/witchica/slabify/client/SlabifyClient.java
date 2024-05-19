@@ -36,6 +36,10 @@ public class SlabifyClient implements ClientModInitializer {
         for(BaseSlabifyBlock wall : Slabify.WALL_TYPE.entries()) {
             BlockRenderLayerMap.INSTANCE.putBlock(wall.getSelf(), ItemBlockRenderTypes.getChunkRenderType(wall.getParent().defaultBlockState()));
         }
+
+        for(BaseSlabifyBlock wall : Slabify.SLICE_TYPE.entries()) {
+            BlockRenderLayerMap.INSTANCE.putBlock(wall.getSelf(), ItemBlockRenderTypes.getChunkRenderType(wall.getParent().defaultBlockState()));
+        }
     }
 
     @Override

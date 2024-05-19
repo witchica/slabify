@@ -30,7 +30,7 @@ public class SlabifySlabBlock extends SlabBlock implements BaseSlabifyBlock {
     private final ResourceLocation registeredName;
 
     public SlabifySlabBlock(Block owner, ResourceLocation registeredName) {
-        super(BlockBehaviour.Properties.ofFullCopy(owner));
+        super(BaseSlabifyBlock.copy(owner));
         this.owner = owner;
         this.registeredName = registeredName;
     }

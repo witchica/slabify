@@ -15,4 +15,10 @@ public interface BaseSlabifyBlock {
     public default Block getSelf() {
         return (Block) this;
     }
+
+    public static BlockBehaviour.Properties copy(Block toCopy) {
+        BlockBehaviour.Properties p = BlockBehaviour.Properties.ofFullCopy(toCopy);
+        p.requiresCorrectToolForDrops = false;
+        return p;
+    }
 }

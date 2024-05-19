@@ -111,7 +111,7 @@ public class SawingTableMenu extends AbstractContainerMenu {
             craftingSlots.setItem(0, inputBlock);
 
             ItemStack saw = craftingSlots.getItem(1);
-            saw.setDamageValue(saw.getDamageValue() + (itemStack.getCount() / 2));
+            saw.setDamageValue(saw.getDamageValue() + 1);
 
             if(saw.getDamageValue() >= saw.getMaxDamage()) {
                 craftingSlots.setItem(1, ItemStack.EMPTY);
@@ -143,7 +143,7 @@ public class SawingTableMenu extends AbstractContainerMenu {
                     List<BaseSlabifyBlock> blocks = Slabify.BLOCKS_TO_CHILDREN.get(blockItem.getBlock());
 
                     for(int i = 0; i < blocks.size(); i++) {
-                        potentialResults.setItem(i, new ItemStack(blocks.get(i).getSelf(), 2));
+                        potentialResults.setItem(i, new ItemStack(blocks.get(i).getSelf(), blocks.get(i).getType().getCraftedAmount()));
                     }
                 }
             });
