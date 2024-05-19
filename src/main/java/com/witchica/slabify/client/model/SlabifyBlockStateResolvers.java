@@ -27,17 +27,12 @@ public class SlabifyBlockStateResolvers {
 
         @Override
         public void resolveBlockStates(Context context) {
-            UnbakedSlabModel bottomModel = new UnbakedSlabModel(SlabType.BOTTOM, block.getParent());
-            context.setModel(block.getSelf().defaultBlockState().setValue(SlabBlock.TYPE, SlabType.BOTTOM), bottomModel);
-            context.setModel(block.getSelf().defaultBlockState().setValue(SlabBlock.TYPE, SlabType.BOTTOM).setValue(BlockStateProperties.WATERLOGGED, true), bottomModel);
+            List<BlockState> states = block.getSelf().getStateDefinition().getPossibleStates();
 
-            UnbakedSlabModel topModel = new UnbakedSlabModel(SlabType.TOP, block.getParent());
-            context.setModel(block.getSelf().defaultBlockState().setValue(SlabBlock.TYPE, SlabType.TOP), topModel);
-            context.setModel(block.getSelf().defaultBlockState().setValue(SlabBlock.TYPE, SlabType.TOP).setValue(BlockStateProperties.WATERLOGGED, true), topModel);
-
-            UnbakedSlabModel doubleModel = new UnbakedSlabModel(SlabType.DOUBLE, block.getParent());
-            context.setModel(block.getSelf().defaultBlockState().setValue(SlabBlock.TYPE, SlabType.DOUBLE), doubleModel);
-            context.setModel(block.getSelf().defaultBlockState().setValue(SlabBlock.TYPE, SlabType.DOUBLE).setValue(BlockStateProperties.WATERLOGGED, true), doubleModel);
+            for(BlockState state : states) {
+                UnbakedSlabModel model = new UnbakedSlabModel(state.getValue(SlabBlock.TYPE), block.getParent());
+                context.setModel(state, model);
+            }
         }
     }
 
