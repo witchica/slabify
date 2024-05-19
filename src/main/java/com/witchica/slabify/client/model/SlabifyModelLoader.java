@@ -44,7 +44,7 @@ public class SlabifyModelLoader implements ModelLoadingPlugin {
             if(MODELS_TO_SLABS.containsKey(context.id())) {
                 return new UnbakedSlabModel(SlabType.BOTTOM, MODELS_TO_SLABS.get(context.id()));
             } else if(MODELS_TO_WALLS.containsKey(context.id())) {
-                return new UnbakedWallModel(false, WallSide.LOW, WallSide.NONE, WallSide.LOW, WallSide.NONE, MODELS_TO_WALLS.get(context.id()));
+                return new UnbakedWallModel(true, WallSide.NONE, WallSide.LOW, WallSide.NONE, WallSide.LOW, MODELS_TO_WALLS.get(context.id()));
             }
 
             return null;
