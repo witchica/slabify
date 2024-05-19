@@ -1,4 +1,4 @@
-package com.witchica.slabify.client.model;
+package com.witchica.slabify.client.model.slab;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -22,7 +23,7 @@ public class SlabifyWallBlock extends WallBlock implements BaseSlabifyBlock {
     public final Block owner;
 
     public SlabifyWallBlock(Block owner) {
-        super(BlockBehaviour.Properties.ofFullCopy(owner));
+        super(BlockBehaviour.Properties.ofLegacyCopy(owner).forceSolidOn());
         this.owner = owner;
 
     }
@@ -46,8 +47,7 @@ public class SlabifyWallBlock extends WallBlock implements BaseSlabifyBlock {
 
     @Override
     public Block getParent() {
-        return owner
-                ;
+        return owner;
     }
 
     @Override

@@ -13,6 +13,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.impl.tag.convention.v2.TagRegistration;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -21,6 +22,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -71,6 +73,7 @@ public class Slabify implements ModInitializer {
 	public static MenuType<SawingTableMenu> SAWING_MENU_TYPE = new MenuType<>(SawingTableMenu::new, FeatureFlags.DEFAULT_FLAGS);
 
 	public static CreativeModeTab SLABIFY_TAB = FabricItemGroup.builder().icon(() -> new ItemStack(Blocks.BIRCH_SLAB)).title(Component.translatable("itemGroup.slabify.slabs")).build();
+	public static CreativeModeTab SLABIFY_WALL_TAB = FabricItemGroup.builder().icon(() -> new ItemStack(Blocks.COBBLESTONE_WALL)).title(Component.translatable("itemGroup.slabify.walls")).build();
 
 	public static Slabify INSTANCE;
 
@@ -225,6 +228,7 @@ public class Slabify implements ModInitializer {
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "diamond_saw"), DIAMOND_SAW);
 
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(MOD_ID, "generic"), SLABIFY_TAB);
+		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(MOD_ID, "walls"), SLABIFY_WALL_TAB);
 
 		Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(MOD_ID, "sawing_table"), SAWING_TABLE);
 		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "sawing_table"), new BlockItem(SAWING_TABLE, new Item.Properties()));
@@ -237,6 +241,10 @@ public class Slabify implements ModInitializer {
 			entries.accept(DIAMOND_SAW);
 			entries.accept(SAWING_TABLE);
 			SLABIFY_SLABS.forEach(slab -> entries.accept(slab.getSelf()));
+		});
+
+		ItemGroupEvents.modifyEntriesEvent(BuiltInRegistries.CREATIVE_MODE_TAB.getResourceKey(SLABIFY_WALL_TAB).get()).register(entries -> {
+			SLABIFY_WALLS.forEach(slab -> entries.accept(slab.getSelf()));
 		});
 	}
 }
