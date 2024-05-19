@@ -2,10 +2,12 @@ package com.witchica.slabify.block;
 
 import com.witchica.slabify.Slabify;
 import com.witchica.slabify.block.base.BaseSlabifyBlock;
+import com.witchica.slabify.types.BlockTypeBase;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlag;
 import net.minecraft.world.item.Item;
@@ -25,12 +27,12 @@ import java.util.List;
 
 public class SlabifySlabBlock extends SlabBlock implements BaseSlabifyBlock {
     public final Block owner;
+    private final ResourceLocation registeredName;
 
-    public SlabifySlabBlock(Block owner) {
+    public SlabifySlabBlock(Block owner, ResourceLocation registeredName) {
         super(BlockBehaviour.Properties.ofFullCopy(owner));
         this.owner = owner;
-
-
+        this.registeredName = registeredName;
     }
 
     @Override
@@ -56,7 +58,12 @@ public class SlabifySlabBlock extends SlabBlock implements BaseSlabifyBlock {
     }
 
     @Override
-    public Slabify.BlockType getType() {
-        return Slabify.BlockType.SLAB;
+    public BlockTypeBase getType() {
+        return Slabify.SLAB_TYPE;
+    }
+
+    @Override
+    public ResourceLocation getRegisteredName() {
+        return registeredName;
     }
 }

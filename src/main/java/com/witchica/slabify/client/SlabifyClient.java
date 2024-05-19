@@ -29,7 +29,7 @@ public class SlabifyClient implements ClientModInitializer {
     public void onClientPostInitialize() {
         ModelLoadingPlugin.register(new SlabifyModelLoader());
 
-        for(BaseSlabifyBlock slabs : Slabify.SLABIFY_SLABS) {
+        for(BaseSlabifyBlock slabs : Slabify.SLAB_TYPE.entries()) {
             BlockRenderLayerMap.INSTANCE.putBlock(slabs.getSelf(), ItemBlockRenderTypes.getChunkRenderType(slabs.getParent().defaultBlockState()));
         }
     }

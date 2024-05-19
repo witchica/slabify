@@ -19,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import org.joml.Math;
 
+import java.util.List;
 import java.util.Optional;
 
 public class SawingTableMenu extends AbstractContainerMenu {
@@ -138,10 +139,12 @@ public class SawingTableMenu extends AbstractContainerMenu {
 
                 BlockItem blockItem = (BlockItem) potentialBlock.getItem();
 
-                if(Slabify.BLOCKS_TO_SLABS.containsKey(blockItem.getBlock())) {
-                    BaseSlabifyBlock block = Slabify.BLOCKS_TO_SLABS.get(blockItem.getBlock());
-                    int amount = 2;
-                    potentialResults.setItem(0, new ItemStack(block.getSelf(), amount));
+                if(Slabify.BLOCKS_TO_CHILDREN.containsKey(blockItem.getBlock())) {
+                    List<BaseSlabifyBlock> blocks = Slabify.BLOCKS_TO_CHILDREN.get(blockItem.getBlock());
+
+                    for(int i = 0; i < blocks.size(); i++) {
+                        potentialResults.setItem(i, new ItemStack(blocks.get(i).getSelf(), 2));
+                    }
                 }
             });
         }

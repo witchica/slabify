@@ -19,23 +19,25 @@ import java.util.Map;
 public class SlabifyModelLoader implements ModelLoadingPlugin {
     @Override
     public void onInitializeModelLoader(Context pluginContext) {
-        for(BaseSlabifyBlock slabBlock : Slabify.SLABIFY_SLABS) {
+        for(BaseSlabifyBlock slabBlock : Slabify.SLAB_TYPE.entries()) {
             pluginContext.registerBlockStateResolver(slabBlock.getSelf(), new SlabifyBlockStateResolvers.Slab(slabBlock));
         }
 
-        for(BaseSlabifyBlock wallBlock : Slabify.SLABIFY_WALLS) {
+        for(BaseSlabifyBlock wallBlock : Slabify.WALL_TYPE.entries()) {
             pluginContext.registerBlockStateResolver(wallBlock.getSelf(), new SlabifyBlockStateResolvers.Wall(wallBlock));
         }
 
         Map<ResourceLocation, Block> MODELS_TO_SLABS = new HashMap<>();
         Map<ResourceLocation, Block> MODELS_TO_WALLS = new HashMap<>();
 
-        for(ResourceLocation resourceLocation : Slabify.IDS_TO_SLABS.keySet()) {
-            MODELS_TO_SLABS.put(new ResourceLocation(resourceLocation.getNamespace(), "item/" + resourceLocation.getPath()) , Slabify.IDS_TO_SLABS.get(resourceLocation).getSelf());
+        for(BaseSlabifyBlock baseSlabifyBlock : Slabify.SLAB_TYPE.entries()) {
+            ResourceLocation resourceLocation = baseSlabifyBlock.getRegisteredName();
+            MODELS_TO_SLABS.put(new ResourceLocation(resourceLocation.getNamespace(), "item/" + resourceLocation.getPath()) , baseSlabifyBlock.getSelf());
         }
 
-        for(ResourceLocation resourceLocation : Slabify.IDS_TO_WALLS.keySet()) {
-            MODELS_TO_WALLS.put(new ResourceLocation(resourceLocation.getNamespace(), "item/" + resourceLocation.getPath()) , Slabify.IDS_TO_WALLS.get(resourceLocation).getSelf());
+        for(BaseSlabifyBlock baseSlabifyBlock : Slabify.WALL_TYPE.entries()) {
+            ResourceLocation resourceLocation = baseSlabifyBlock.getRegisteredName();
+            MODELS_TO_WALLS.put(new ResourceLocation(resourceLocation.getNamespace(), "item/" + resourceLocation.getPath()) , baseSlabifyBlock.getSelf());
         }
 
         pluginContext.resolveModel().register(context -> {
