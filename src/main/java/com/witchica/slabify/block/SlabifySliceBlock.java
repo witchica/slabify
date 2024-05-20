@@ -46,7 +46,7 @@ public class SlabifySliceBlock extends Block implements BaseSlabifyBlock, Simple
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public SlabifySliceBlock(Block parent, ResourceLocation resourceLocation) {
-        super(BaseSlabifyBlock.copy(parent).noOcclusion());
+        super(BaseSlabifyBlock.copy(parent).noOcclusion().dynamicShape());
         this.parent = parent;
         this.registeredName = resourceLocation;
         registerDefaultState(defaultBlockState().setValue(HEIGHT, 1).setValue(WATERLOGGED, false));
